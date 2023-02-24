@@ -1,14 +1,14 @@
 package com.example.application.views.helloworld;
 
 import com.example.application.views.MainLayout;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.mpr.LegacyWrapper;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.TextField;
 
 @PageTitle("Hello World")
 @Route(value = "hello", layout = MainLayout.class)
@@ -24,12 +24,15 @@ public class HelloWorldView extends HorizontalLayout {
         sayHello.addClickListener(e -> {
             Notification.show("Hello " + name.getValue());
         });
-        sayHello.addClickShortcut(Key.ENTER);
+        // sayHello.addClickShortcut(Key.ENTER);
 
         setMargin(true);
-        setVerticalComponentAlignment(Alignment.END, name, sayHello);
+        LegacyWrapper wrappedName = new LegacyWrapper(name);
+        LegacyWrapper wrappedSayHello = new LegacyWrapper(sayHello);
+        setVerticalComponentAlignment(Alignment.END, wrappedName,
+                wrappedSayHello);
 
-        add(name, sayHello);
+        add(wrappedName, wrappedSayHello);
     }
 
 }
