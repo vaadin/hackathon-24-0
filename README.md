@@ -13,3 +13,13 @@
 - If there is no code add a README or screenshots
 - Everyone will get a present.
 - 3 winners (amazon gift card) (Announced during Release event on Wednesday 1st)
+
+
+
+## 
+
+- Migration of the explorer tree grid
+- Fixed an issue with the default export in Vite (not related to Vaadin 24)
+- Remove the template renderer usage
+- Try to disable express mode and ask for help: https://github.com/vaadin/docs/issues/2206
+- Publish a new version of the component: https://vaadin.com/directory/component/explorer-tree-grid
