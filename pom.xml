@@ -135,10 +135,10 @@
             <version>${vaadin8.version}</version>
         </dependency>
 
-        <dependency>
+        <!-- <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spreadsheet-flow</artifactId>
-        </dependency>
+        </dependency> -->
 
         <dependency>
             <groupId>com.vaadin</groupId>

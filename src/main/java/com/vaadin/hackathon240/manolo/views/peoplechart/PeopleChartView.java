@@ -1,5 +1,8 @@
 package com.vaadin.hackathon240.manolo.views.peoplechart;
 
+import com.vaadin.addon.spreadsheet.Spreadsheet;
+import com.vaadin.addon.spreadsheet.SpreadsheetFilterTable;
+import com.vaadin.addon.spreadsheet.SpreadsheetTable;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Text;
@@ -19,9 +22,6 @@ import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.spreadsheet.Spreadsheet;
-import com.vaadin.flow.component.spreadsheet.SpreadsheetFilterTable;
-import com.vaadin.flow.component.spreadsheet.SpreadsheetTable;
 import com.vaadin.flow.component.upload.Receiver;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.router.PageTitle;
@@ -31,6 +31,8 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.vaadin.mpr.LegacyWrapper;
+
 import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -82,9 +84,11 @@ public class PeopleChartView extends VerticalLayout implements Receiver {
 
         spreadsheet = new Spreadsheet(stream);
         spreadsheet.setHeight("400px");
-        add(spreadsheet);
-
-        add(createViewHeader(), spreadsheet);
+        spreadsheet.setWidth("400px");
+        LegacyWrapper wrapper = new LegacyWrapper(spreadsheet);
+        wrapper.setHeight("500px");
+        wrapper.setWidth("500px");
+        add(createViewHeader(), wrapper);
     }
 
     private Logger getLogger() {
