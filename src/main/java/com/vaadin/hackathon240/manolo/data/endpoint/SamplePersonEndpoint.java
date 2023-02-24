@@ -6,7 +6,7 @@ import dev.hilla.Endpoint;
 import dev.hilla.Nonnull;
 import dev.hilla.exception.EndpointException;
 import java.util.Optional;
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

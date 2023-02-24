@@ -2,8 +2,8 @@ package com.vaadin.hackathon240.manolo.data.entity;
 
 import dev.hilla.Nonnull;
 import java.time.LocalDate;
-import javax.persistence.Entity;
-import javax.validation.constraints.Email;
+import jakarta.persistence.Entity;
+import jakarta.validation.constraints.Email;
 
 @Entity
 public class SamplePerson extends AbstractEntity {

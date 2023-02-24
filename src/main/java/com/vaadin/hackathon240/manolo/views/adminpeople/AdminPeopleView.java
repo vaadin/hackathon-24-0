@@ -28,7 +28,7 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.hackathon240.manolo.data.entity.Person;
 import com.vaadin.hackathon240.manolo.data.service.PersonService;
 import java.util.Optional;
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.PermitAll;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
