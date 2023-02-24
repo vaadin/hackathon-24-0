@@ -1,15 +1,40 @@
 # hackathon-24-0
 
-## links
-- V24 [Migration Guide](https://vaadin.com/docs/next/components/charts/migrating-from-earlier-versions#migration-guide)
-- V24 [Supported Technologies](https://github.com/vaadin/platform/issues/3720)
-- Hackathon Results [Repository](https://github.com/vaadin/hackathon-24-0
-- V24 [Releases Notes](https://github.com/vaadin/platform/blob/24.0/scripts/generator/templates/template-release-notes.md
-- Training [slides](https://docs.google.com/presentation/d/1RZJazJbWNU4eab64QnjPBXwcoK_pLBT7vL6qd-WGJvA/edit?userstoinvite=tamas@vaadin.com#slide=id.g1a09ce2961a_0_1)
-## Rules
-- Use Platform [24.0.0.beta4](https://github.com/vaadin/platform/releases/tag/24.0.0.beta4), Hilla [2.0.0.beta4](https://github.com/vaadin/hilla/releases/tag/2.0.0.beta4)
-- Work on an app, a fix, a migration, experiment new features, improve docs, update addon, open issues, etc.
-- Push a branch to the REPO (Before Monday 27th at noon)
-- If there is no code add a README or screenshots
-- Everyone will get a present.
-- 3 winners (amazon gift card) (Announced during Release event on Wednesday 1st)
+## Tested personal add-ons with Vaadin 24
+
+### Spinkit
+
+Latest version works on Vaadin 24 without any change.
+Upgraded demo project to Vaadin 24 and Jetty 11
+
+https://vaadin.com/directory/component/spinkit-add-on
+
+
+### Twitter widgets for Vaadin
+
+Latest version works on Vaadin 24 without any change.
+Upgraded demo projects to Vaadin 24, Jetty 11 and Quarkus 3.0.0.Alpha3
+Used polymer-to-lit tool in the demo to convert a markdown helper and it worked fine.
+
+https://vaadin.com/directory/component/twitter-widgets-for-vaadin
+
+
+### Upgraded add-ons demo application to Vaadin 24
+
+https://mbf-vaadin-addons.up.railway.app/
+
+
+### Notes on migration
+
+Add-ons are pretty simple and did not require changes.
+For the demo projects some minor fixes like upgrading dependencies and replacing removed code.
+I got some troubles in one project with the development bundle, but mainly because I did not
+correctly handled assets in the custom theme.
+
+
+## Documentation
+
+Removed a section in MPR docs for Vaadin 8, with wrong contents,
+possibly because of some mistake during conflicts resolution.
+Thanks to @Ansku for the finding and reporting.
+https://github.com/vaadin/docs/pull/2225
