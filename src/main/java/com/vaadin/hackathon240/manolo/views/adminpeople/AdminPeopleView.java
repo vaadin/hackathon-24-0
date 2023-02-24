@@ -1,9 +1,17 @@
 package com.vaadin.hackathon240.manolo.views.adminpeople;
 
+import java.util.Optional;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -14,8 +22,8 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
@@ -55,6 +63,7 @@ public class AdminPeopleView extends Div implements BeforeEnterObserver {
 
     private final Button cancel = new Button("Cancel");
     private final Button save = new Button("Save");
+    private Button plus = new Button("+");
 
     private final BeanValidationBinder<Person> binder;
 
@@ -62,17 +71,26 @@ public class AdminPeopleView extends Div implements BeforeEnterObserver {
 
     private final PersonService personService;
 
+    private Div editorLayoutDiv;
+    private ConfirmDialog dialog;
+
     public AdminPeopleView(PersonService personService) {
         this.personService = personService;
         addClassNames("admin-people-view");
 
         // Create UI
-        SplitLayout splitLayout = new SplitLayout();
 
-        createGridLayout(splitLayout);
-        createEditorLayout(splitLayout);
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.setSpacing(false);
+        horizontalLayout.setSizeFull();
 
-        add(splitLayout);
+
+        createGridLayout(horizontalLayout);
+        createEditorLayout(horizontalLayout);
+
+        showDetail(false);
+
+        add(horizontalLayout);
 
         // Configure Grid
         grid.addColumn("firstName").setAutoWidth(true);
@@ -113,12 +131,9 @@ public class AdminPeopleView extends Div implements BeforeEnterObserver {
         // Bind fields. This is where you'd define e.g. validation rules
 
         binder.bindInstanceFields(this);
-
-        cancel.addClickListener(e -> {
-            clearForm();
-            refreshGrid();
-        });
-
+        // Add actions to the buttons
+        plus.addClickListener(e -> populateForm(null));
+        cancel.addClickListener(e -> cancel());
         save.addClickListener(e -> {
             try {
                 if (this.person == null) {
@@ -142,6 +157,11 @@ public class AdminPeopleView extends Div implements BeforeEnterObserver {
     }
 
     @Override
+    protected void onAttach(AttachEvent event) {
+        UI.getCurrent().addShortcutListener(cancel::click, Key.ESCAPE);
+    }
+
+    @Override
     public void beforeEnter(BeforeEnterEvent event) {
         Optional<Long> personId = event.getRouteParameters().get(PERSON_ID).map(Long::parseLong);
         if (personId.isPresent()) {
@@ -159,9 +179,11 @@ public class AdminPeopleView extends Div implements BeforeEnterObserver {
         }
     }
 
-    private void createEditorLayout(SplitLayout splitLayout) {
-        Div editorLayoutDiv = new Div();
+    private void createEditorLayout(HorizontalLayout splitLayout) {
+        editorLayoutDiv = new Div();
         editorLayoutDiv.setClassName("editor-layout");
+        editorLayoutDiv.setClassName("detail flex flex-col bg-contrast-5");
+        editorLayoutDiv.setMaxWidth("350px");
 
         Div editorDiv = new Div();
         editorDiv.setClassName("editor");
@@ -182,23 +204,28 @@ public class AdminPeopleView extends Div implements BeforeEnterObserver {
         editorDiv.add(formLayout);
         createButtonLayout(editorLayoutDiv);
 
-        splitLayout.addToSecondary(editorLayoutDiv);
+        splitLayout.add(editorLayoutDiv);
     }
 
     private void createButtonLayout(Div editorLayoutDiv) {
         HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.setClassName("button-layout");
-        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        buttonLayout.setJustifyContentMode(JustifyContentMode.BETWEEN); //TODO: remove
+        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonLayout.add(save, cancel);
         editorLayoutDiv.add(buttonLayout);
     }
 
-    private void createGridLayout(SplitLayout splitLayout) {
+    private void createGridLayout(HorizontalLayout splitLayout) {
         Div wrapper = new Div();
         wrapper.setClassName("grid-wrapper");
-        splitLayout.addToPrimary(wrapper);
+        splitLayout.add(wrapper);
         wrapper.add(grid);
+        splitLayout.add(wrapper);
+        plus.setClassName("fab-button");
+        plus.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_LARGE);
+        wrapper.add(plus);
     }
 
     private void refreshGrid() {
@@ -206,13 +233,27 @@ public class AdminPeopleView extends Div implements BeforeEnterObserver {
         grid.getDataProvider().refreshAll();
     }
 
+    private void cancel() {
+        if (binder.hasChanges()) {
+            dialog.open();
+        } else {
+            clearForm();
+        }
+    }
+
     private void clearForm() {
         populateForm(null);
+        showDetail(false);
     }
 
     private void populateForm(Person value) {
         this.person = value;
         binder.readBean(this.person);
+        showDetail(true);
+    }
 
+    private void showDetail(boolean show) {
+        editorLayoutDiv.setVisible(show);
+        plus.setVisible(!show);
     }
 }
