@@ -13,6 +13,8 @@
         <java.version>17</java.version>
         <vaadin.version>24.0.0.beta5</vaadin.version>
         <hilla.version>2.0.0.beta5</hilla.version>
+        <flow.version>24.0.0.beta4</flow.version>
+        <vaadin8.version>8.20.0</vaadin8.version>
         <!-- this parameter is needed as spring-boot bom overwrites it -->
         <selenium.version>4.5.3</selenium.version>
     </properties>
@@ -76,7 +78,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-        
+
             <dependency>
                 <groupId>dev.hilla</groupId>
                 <artifactId>hilla-bom</artifactId>
@@ -102,6 +104,10 @@
             <groupId>dev.hilla</groupId>
             <artifactId>hilla</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>mpr-v8</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -110,7 +116,44 @@
 
         <dependency>
             <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-server-mpr-jakarta</artifactId>
+            <version>${vaadin8.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jsoup</groupId>
+                    <artifactId>jsoup</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.gwt</groupId>
+                    <artifactId>gwt-elemental</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-themes</artifactId>
+            <version>${vaadin8.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spreadsheet-flow</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-spreadsheet</artifactId>
+            <version>3.0.0.alpha1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>vaadin-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>vaadin-client</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -185,8 +228,8 @@
             -->
             <plugin>
                 <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-maven-plugin</artifactId>
-                <version>${vaadin.version}</version>
+                <artifactId>flow-maven-plugin</artifactId>
+                <version>${flow.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -195,20 +238,33 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-maven-plugin</artifactId>
+                <version>${vaadin8.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>resources</goal>
+                            <goal>update-widgetset</goal>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         <plugin>
-<groupId>dev.hilla    </groupId>
-<artifactId>hilla-maven-plugin    </artifactId>
-<version>${hilla.version}    </version>
-<executions>
-<execution>
-<goals>
-<goal>prepare-frontend    </goal>
-</goals>
-</execution>
-</executions>
-</plugin>
-
-</plugins>
+            <groupId>dev.hilla</groupId>
+            <artifactId>hilla-maven-plugin</artifactId>
+            <version>${hilla.version}</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>prepare-frontend</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
     </build>
 
     <profiles>
@@ -219,8 +275,8 @@
                 <plugins>
                     <plugin>
                         <groupId>com.vaadin</groupId>
-                        <artifactId>vaadin-maven-plugin</artifactId>
-                        <version>${vaadin.version}</version>
+                        <artifactId>flow-maven-plugin</artifactId>
+                        <version>${flow.version}</version>
                         <executions>
                             <execution>
                                 <goals>
