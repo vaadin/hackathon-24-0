@@ -24,7 +24,7 @@ import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
 
-@Route("test")
+@Route("shop")
 public class SpreadsheetViewSudebi extends VerticalLayout {
 	private Button newInvoice = new Button("Create New Invoice");
 	private Button export = new Button("Export");

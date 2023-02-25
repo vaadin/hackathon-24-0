@@ -115,7 +115,6 @@ public class InvoiceDialogView extends Dialog {
 		productGrid.addEditColumn(Product::getName).text(Product::setName).setHeader("Name");
 		productGrid.addEditColumn(Product::getQuantity).text(Product::setQuantity).setHeader("Quantity");
 		productGrid.addEditColumn(Product::getPrice).text(Product::setPrice).setHeader("Price per Item");
-		productGrid.addColumn(Product::getTotalPrice).setHeader("Total Price");
 		productGrid.setItems(productList);
 
 	}
