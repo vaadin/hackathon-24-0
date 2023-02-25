@@ -1,14 +1,17 @@
 package com.example.application.views.dialog;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
 
 import com.example.application.entity.Invoice;
 import com.example.application.entity.Item;
@@ -144,21 +147,61 @@ public class InvoiceDialogView extends Dialog {
 
 	public void generateInvoiceSheet(String name, String email, String phNumber, String address) {
 		spreadsheet.createNewSheet(name, 100, 50);
-		spreadsheet.createCell(1, 1, "Invoice Number: ");
-		spreadsheet.createCell(1, 2, generateInvoiceNumber(name));
-		spreadsheet.createCell(2, 1, "Customer Name: ");
-		spreadsheet.createCell(2, 2, name);
-		spreadsheet.createCell(3, 1, "Phone Number: ");
-		spreadsheet.createCell(3, 2, phNumber);
-		spreadsheet.createCell(4, 1, "Address: ");
-		spreadsheet.createCell(4, 2, address);
+		spreadsheet.setColumnWidth(1, 150);
+		spreadsheet.setColumnWidth(2, 180);
 
-		spreadsheet.createCell(5, 1, "Products");
-		spreadsheet.createCell(6, 1, "Product Name");
-		spreadsheet.createCell(6, 2, "Price per Item");
-		spreadsheet.createCell(6, 3, "Quantity");
-		spreadsheet.createCell(6, 4, "Price");
-		int row = 7;
+		CellStyle cellStyle = spreadsheet.getWorkbook().createCellStyle();
+		Font font = spreadsheet.getWorkbook().createFont();
+		font.setBold(true);
+		cellStyle.setFont(font);
+		Cell cell = spreadsheet.createCell(1, 1, "Invoice Number: ");
+		cell.setCellStyle(cellStyle);
+		//spreadsheet.refreshCells(cell);
+		spreadsheet.createCell(1, 2, generateInvoiceNumber(name));
+		cell = spreadsheet.createCell(2, 1, "Customer Name: ");
+		cell.setCellStyle(cellStyle);
+		//spreadsheet.refreshCells(cell);
+		spreadsheet.createCell(2, 2, name);
+		cell = spreadsheet.createCell(3, 1, "Phone Number: ");
+		cell.setCellStyle(cellStyle);
+		//spreadsheet.refreshCells(cell);
+		spreadsheet.createCell(3, 2, phNumber);
+		cell = spreadsheet.createCell(4, 1, "Address: ");
+		cell.setCellStyle(cellStyle);
+		spreadsheet.refreshCells(cell);
+		spreadsheet.createCell(4, 2, address);
+		
+		
+		CellStyle mergedCellStyle = spreadsheet.getWorkbook().createCellStyle();
+		font = spreadsheet.getWorkbook().createFont();
+		font.setBold(true);
+		font.setColor(IndexedColors.WHITE.getIndex());
+		mergedCellStyle.setFont(font);
+		mergedCellStyle.setFillBackgroundColor(IndexedColors.BLUE_GREY.getIndex());
+		cell = spreadsheet.createCell(7, 1, "Products");
+		cell.setCellStyle(mergedCellStyle);
+		spreadsheet.refreshCells(cell);
+		spreadsheet.addMergedRegion(7, 1, 7, 4);
+		
+		CellStyle headerCellStyle = spreadsheet.getWorkbook().createCellStyle();
+		font = spreadsheet.getWorkbook().createFont();
+		font.setBold(true);
+		headerCellStyle.setFont(font);
+		headerCellStyle.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		
+		cell = spreadsheet.createCell(8, 1, "Product Name");
+		cell.setCellStyle(headerCellStyle);
+		//spreadsheet.refreshCells(cell);
+		cell = spreadsheet.createCell(8, 2, "Price per Item");
+		cell.setCellStyle(headerCellStyle);
+		//spreadsheet.refreshCells(cell);
+		cell = spreadsheet.createCell(8, 3, "Quantity");
+		cell.setCellStyle(headerCellStyle);
+		//spreadsheet.refreshCells(cell);
+		cell = spreadsheet.createCell(8, 4, "Price");
+		cell.setCellStyle(headerCellStyle);
+		spreadsheet.refreshCells(cell);
+		int row = 9;
 		int col = 1;
 		Double totalPrice = 0.0;
 		for (Product p : productList) {
@@ -177,10 +220,12 @@ public class InvoiceDialogView extends Dialog {
 		}
 
 		row++;
-		spreadsheet.createCell(row, 1, "TotalPrice");
+		cell = spreadsheet.createCell(row, 1, "TotalPrice");
+		cell.setCellStyle(cellStyle);
 		spreadsheet.createCell(row, 4, totalPrice);
 
 		includeTotalPriceToChartData(totalPrice);
+		spreadsheet.setActiveSheetIndex(1);
 	}
 
 	public Spreadsheet getSpreadsheet() {
@@ -198,10 +243,10 @@ public class InvoiceDialogView extends Dialog {
 
 	public void includeTotalPriceToChartData(Double totalPrice) {
 		spreadsheet.setActiveSheetIndex(1);
-		//int hour = LocalTime.now().getHour();
+		// int hour = LocalTime.now().getHour();
 		Random random = new Random();
 		int hour = random.nextInt(8, 16);
-		
+
 		Double price = priceMap.compute(hour, (k, v) -> v == null ? totalPrice : v + totalPrice);
 
 		if (hour >= 8 && hour <= 16) {

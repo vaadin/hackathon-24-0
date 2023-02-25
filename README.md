@@ -7,7 +7,33 @@ The spreadsheet has two Button components added to it, one to create a new invoi
 The project is a standard Maven project.Run the application and open http://localhost:8080/shop in browser.
 
 ## Application Demo
-check the demo.docx for the demo of the application. 
+##### show sales distribution chart and create new invoice/export chart.
+The application when loaded for the first time does not show any data in the chart as the values for all the labels are 0 initially.  
+![show sales distribution chart and create new invoice/export chart. ](1.png)
+
+##### create new invoice
+On creating a new invoice a dialog opens where there are text fields for name, email, phone number and address and it has a GridPro component to add the products. 
+Products can be added by clicking on the + sign to the right of the grid.
+
+![create new invoice](2.png)
+
+![create new invoice](5.png)
+
+##### check invoices
+On generating invoice a new tab is  created which shows the invoice of the customer and the total amount is added to the hourly sale data in the ChartData Sheet of that particular hour. 
+
+![invoice](3.png)
+
+![invoice](6.png)
+
+##### check sales distribution chart whenever a new invoice is created.
+
+![invoice](4.png)
+
+![invoice](7.png)
+
+##### export to excel
+click on the export button in shop sheet to download the spreadsheet with all the data. 
 
 ## links
 - V24 [Migration Guide](https://vaadin.com/docs/next/components/charts/migrating-from-earlier-versions#migration-guide)
