@@ -1,5 +1,6 @@
 package com.example.application.views.dialog;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -7,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.example.application.entity.Invoice;
 import com.example.application.entity.Item;
@@ -197,7 +199,10 @@ public class InvoiceDialogView extends Dialog {
 
 	public void includeTotalPriceToChartData(Double totalPrice) {
 		spreadsheet.setActiveSheetIndex(1);
-		int hour = LocalTime.now().getHour();
+		//int hour = LocalTime.now().getHour();
+		Random random = new Random();
+		int hour = random.nextInt(8, 16);
+		
 		Double price = priceMap.compute(hour, (k, v) -> v == null ? totalPrice : v + totalPrice);
 
 		if (hour >= 8 && hour <= 16) {

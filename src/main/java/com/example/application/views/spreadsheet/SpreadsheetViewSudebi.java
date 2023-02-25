@@ -71,6 +71,7 @@ public class SpreadsheetViewSudebi extends VerticalLayout {
 			}
 		});
 		spreadsheet.setColumnWidth(1, 200);
+		spreadsheet.setColumnWidth(4, 100);
 
 		newInvoice.addClickListener(event -> {
 			// Notification.show("New Invoice", 3000, Position.MIDDLE);
