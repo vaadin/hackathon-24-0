@@ -1,18 +1,26 @@
 package com.example.application.views.dialog;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.example.application.entity.Invoice;
 import com.example.application.entity.Item;
 import com.example.application.entity.Product;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.gridpro.GridPro;
 import com.vaadin.flow.component.gridpro.GridProVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.spreadsheet.Spreadsheet;
@@ -30,7 +38,8 @@ public class InvoiceDialogView extends Dialog {
 	private GridPro<Product> productGrid = new GridPro<>();
 	private Binder<Invoice> productBinder;
 	private List<Item> itemsList = new ArrayList<Item>();
-	ComboBox<Item> comboBox = new ComboBox<>();
+	private ComboBox<Item> comboBox = new ComboBox<>();
+	private static Map<Integer, Double> priceMap = new HashMap<>();
 
 	public InvoiceDialogView() {
 		populateItemsList();
@@ -61,13 +70,26 @@ public class InvoiceDialogView extends Dialog {
 
 		createProductGrid();
 
-		dialogMainLayout.add(customerDetails, productGrid, generateInvoice);
+		HorizontalLayout productLayout = new HorizontalLayout();
+		Button addButton = new Button("", new Icon(VaadinIcon.PLUS_SQUARE_O));
+		addButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		addButton.setTooltipText("click to add new product");
+		productLayout.setJustifyContentMode(JustifyContentMode.BETWEEN);
+		productLayout.add(productGrid, addButton);
+		productLayout.setWidthFull();
+		dialogMainLayout.add(customerDetails, productLayout, generateInvoice);
 		add(dialogMainLayout);
 
 		generateInvoice.addClickListener(event -> {
-			generateInvoiceSheet(name.getValue(),email.getValue(),phNumber.getValue(),address.getValue());
+			generateInvoiceSheet(name.getValue(), email.getValue(), phNumber.getValue(), address.getValue());
 			this.close();
 		});
+
+		addButton.addClickListener(event -> {
+			productList.add(new Product());
+			productGrid.setItems(productList);
+		});
+
 		setWidth("40%");
 		/*
 		 * 
@@ -118,10 +140,9 @@ public class InvoiceDialogView extends Dialog {
 
 		comboBox.setItems(itemsList);
 	}
-	
-	public void generateInvoiceSheet(String name,String email,String phNumber,String address){
+
+	public void generateInvoiceSheet(String name, String email, String phNumber, String address) {
 		spreadsheet.createNewSheet(name, 100, 50);
-		spreadsheet.setActiveSheetIndex(1);
 		spreadsheet.createCell(1, 1, "Invoice Number: ");
 		spreadsheet.createCell(1, 2, generateInvoiceNumber(name));
 		spreadsheet.createCell(2, 1, "Customer Name: ");
@@ -136,8 +157,9 @@ public class InvoiceDialogView extends Dialog {
 		spreadsheet.createCell(6, 2, "Price per Item");
 		spreadsheet.createCell(6, 3, "Quantity");
 		spreadsheet.createCell(6, 4, "Price");
-		int row=7;
-		int col=1;
+		int row = 7;
+		int col = 1;
+		Double totalPrice = 0.0;
 		for (Product p : productList) {
 			spreadsheet.createCell(row, col, p.getName());
 			col++;
@@ -145,10 +167,19 @@ public class InvoiceDialogView extends Dialog {
 			col++;
 			spreadsheet.createCell(row, col, p.getQuantity());
 			col++;
-			spreadsheet.createCell(row, col, (Double.valueOf(p.getQuantity()) * Double.valueOf(p.getPrice())));
+			Double price = Double.valueOf(p.getQuantity()) * Double.valueOf(p.getPrice());
+			spreadsheet.createCell(row, col, price);
 			col++;
-          
+			row++;
+			col = 1;
+			totalPrice = totalPrice + price;
 		}
+
+		row++;
+		spreadsheet.createCell(row, 1, "TotalPrice");
+		spreadsheet.createCell(row, 4, totalPrice);
+
+		includeTotalPriceToChartData(totalPrice);
 	}
 
 	public Spreadsheet getSpreadsheet() {
@@ -158,10 +189,21 @@ public class InvoiceDialogView extends Dialog {
 	public void setSpreadsheet(Spreadsheet spreadsheet) {
 		this.spreadsheet = spreadsheet;
 	}
-	
+
 	public String generateInvoiceNumber(String name) {
-		    Date date = new Date();
-		    return name.concat(String.valueOf(date.getTime()));
+		Date date = new Date();
+		return name.concat(String.valueOf(date.getTime()));
+	}
+
+	public void includeTotalPriceToChartData(Double totalPrice) {
+		spreadsheet.setActiveSheetIndex(1);
+		int hour = LocalTime.now().getHour();
+		Double price = priceMap.compute(hour, (k, v) -> v == null ? totalPrice : v + totalPrice);
+
+		if (hour >= 8 && hour <= 16) {
+			String cell = "B" + (hour - 6);
+			spreadsheet.getCell(cell).setCellValue(price);
+		}
 	}
 
 }

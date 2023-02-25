@@ -1,10 +1,15 @@
 package com.example.application.views.spreadsheet;
 
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.poi.ss.usermodel.Cell;
 
-import com.example.application.entity.Product;
 import com.example.application.views.dialog.InvoiceDialogView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -12,17 +17,20 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.spreadsheet.Spreadsheet;
 import com.vaadin.flow.component.spreadsheet.SpreadsheetComponentFactory;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 
 @Route("test")
 public class SpreadsheetViewSudebi extends VerticalLayout {
 	private Button newInvoice = new Button("Create New Invoice");
+	private Button printInvoice = new Button("PrintInvoice");
 	private InvoiceDialogView dialog;
 
 	
 	public SpreadsheetViewSudebi() throws IOException {
-		Spreadsheet spreadsheet = new Spreadsheet();
+		File initialFile = new File("C:/Users/Sudebi/Desktop/shop.xlsx");
+		InputStream targetStream = new FileInputStream(initialFile);
+		
+		Spreadsheet spreadsheet = new Spreadsheet(targetStream);
 		spreadsheet.setHeight("400px");
 		add(spreadsheet);
 		setSizeFull();
@@ -62,6 +70,7 @@ public class SpreadsheetViewSudebi extends VerticalLayout {
 			dialog.setSpreadsheet(spreadsheet);
 			dialog.open();
 		});
+		
 
 	}
 
