@@ -1,12 +1,14 @@
 package me.sebastian.vaadin.views.spreadsheet;
 
-import me.sebastian.vaadin.views.MainLayout;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.HasMenuItems;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -18,6 +20,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.spreadsheet.Spreadsheet;
+import com.vaadin.flow.component.spreadsheet.SpreadsheetComponentFactory;
 import com.vaadin.flow.component.spreadsheet.SpreadsheetFilterTable;
 import com.vaadin.flow.component.spreadsheet.SpreadsheetTable;
 import com.vaadin.flow.component.upload.Receiver;
@@ -29,29 +32,9 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import java.awt.Color;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.Comment;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
+import me.sebastian.vaadin.views.MainLayout;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.RichTextString;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -60,15 +43,29 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.Color;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+
 @PageTitle("Spreadsheet")
 @Route(value = "spreadsheet", layout = MainLayout.class)
 public class SpreadsheetView extends VerticalLayout implements Receiver {
 
+    private final Spreadsheet spreadsheet;
     private File uploadedFile;
     private File previousFile;
-    private final Spreadsheet spreadsheet;
     private H3 invoiceNumber;
     private Span invoiceSource;
+
+    private final Set<Integer> primeNumbers;
 
     public SpreadsheetView() throws IOException, URISyntaxException {
         setSizeFull();
@@ -80,6 +77,42 @@ public class SpreadsheetView extends VerticalLayout implements Receiver {
         spreadsheet = new Spreadsheet(stream);
         spreadsheet.setHeight("400px");
         add(spreadsheet);
+
+        primeNumbers = sieveOfEratosthenes(1000);
+        spreadsheet.setSpreadsheetComponentFactory(new SpreadsheetComponentFactory() {
+            @Override
+            public Component getCustomComponentForCell(Cell cell, int rowIndex, int columnIndex, Spreadsheet spreadsheet, Sheet sheet) {
+                return null;
+            }
+
+            @Override
+            public Component getCustomEditorForCell(Cell cell, int rowIndex, int columnIndex, Spreadsheet spreadsheet, Sheet sheet) {
+                if (spreadsheet.getActiveSheetIndex() == 0 && rowIndex == 4 && columnIndex == 3) {
+                    return new DatePicker(cell.getLocalDateTimeCellValue().toLocalDate(),
+                            event -> {
+                                Instant instant = event.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant();
+                                spreadsheet.refreshCells(spreadsheet.createCell(rowIndex, columnIndex, Date.from(instant)));
+                            });
+                }
+
+                if (spreadsheet.getActiveSheetIndex() == 0 && rowIndex == 3 && columnIndex == 3) {
+                    ComboBox<Integer> primeBox = new ComboBox<>();
+                    primeBox.setItems(primeNumbers);
+                    primeBox.setValue((int) cell.getNumericCellValue());
+                    primeBox.addValueChangeListener(event -> {
+                        Notification.show(String.format("%d selected", event.getValue()));
+                        spreadsheet.refreshCells(spreadsheet.createCell(rowIndex, columnIndex, Double.valueOf(event.getValue())));
+                    });
+                    return primeBox;
+                }
+                return null;
+            }
+
+            @Override
+            public void onCustomEditorDisplayed(Cell cell, int rowIndex, int columnIndex, Spreadsheet spreadsheet, Sheet sheet, Component customEditor) {
+
+            }
+        });
 
         add(createViewHeader(), spreadsheet);
     }
@@ -337,7 +370,7 @@ public class SpreadsheetView extends VerticalLayout implements Receiver {
     }
 
     private MenuItem createCheckableItem(HasMenuItems menu, String item, boolean checked,
-            ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+                                         ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
         MenuItem menuItem = menu.addItem(item, clickListener);
         menuItem.setCheckable(true);
         menuItem.setChecked(checked);
@@ -346,7 +379,7 @@ public class SpreadsheetView extends VerticalLayout implements Receiver {
     }
 
     private MenuItem createIconItem(HasMenuItems menu, LumoIcon iconName, String label, String ariaLabel,
-            ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+                                    ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
         Icon icon = new Icon("lumo", iconName.toString().toLowerCase());
 
         MenuItem item = menu.addItem(icon, clickListener);
@@ -363,7 +396,7 @@ public class SpreadsheetView extends VerticalLayout implements Receiver {
     }
 
     private MenuItem createIconItem(HasMenuItems menu, VaadinIcon iconName, String label, String ariaLabel,
-            ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+                                    ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
         Icon icon = new Icon(iconName);
 
         icon.getStyle().set("width", "var(--lumo-icon-size-s)");
@@ -448,5 +481,31 @@ public class SpreadsheetView extends VerticalLayout implements Receiver {
         }
         SpreadsheetTable table = new SpreadsheetFilterTable(spreadsheet, cellAddresses);
         spreadsheet.registerTable(table);
+    }
+
+    private Set<Integer> sieveOfEratosthenes(int n)
+    {
+        Set<Integer> primeNumbers = new HashSet<>();
+        boolean prime[] = new boolean[n + 1];
+        for (int i = 0; i <= n; i++)
+            prime[i] = true;
+
+        for (int p = 2; p * p <= n; p++) {
+            // If prime[p] is not changed, then it is a
+            // prime
+            if (prime[p] == true) {
+                // Update all multiples of p
+                for (int i = p * p; i <= n; i += p)
+                    prime[i] = false;
+            }
+        }
+
+        // Print all prime numbers
+        for (int i = 2; i <= n; i++) {
+            if (prime[i] == true)
+                primeNumbers.add(i);
+        }
+
+        return primeNumbers;
     }
 }
