@@ -10,7 +10,7 @@ Issues reported:
 * https://github.com/vaadin/flow/issues/16036
 * https://github.com/vaadin/addon-template/issues/279
 
-Wrote an V14->V24 upgrade guide: https://docs.google.com/document/d/1GpBIZZD65VMpXp2nwFHGG4AoYcu7Bo18WRPiZBdOfWA/edit#heading=h.cnrtccs4kxhg
+Wrote an V14->V24 add-on upgrade guide: https://docs.google.com/document/d/1GpBIZZD65VMpXp2nwFHGG4AoYcu7Bo18WRPiZBdOfWA/edit#heading=h.cnrtccs4kxhg
 
 ## Add-on updates
 
