@@ -32,10 +32,10 @@ public class SpreadsheetViewSudebi extends VerticalLayout {
 	private Spreadsheet spreadsheet;
 
 	public SpreadsheetViewSudebi() throws IOException {
-		File initialFile = new File("C:/Users/Sudebi/Desktop/shop.xlsx");
-		InputStream targetStream = new FileInputStream(initialFile);
 
-		spreadsheet = new Spreadsheet(targetStream);
+		InputStream stream = getClass().getResourceAsStream("/testsheets/shop.xlsx");
+
+		spreadsheet = new Spreadsheet(stream);
 		spreadsheet.setHeight("400px");
 		add(spreadsheet);
 		setSizeFull();
@@ -62,7 +62,7 @@ public class SpreadsheetViewSudebi extends VerticalLayout {
 					newInvoice.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 					return newInvoice;
 				}
-				
+
 				if (spreadsheet.getActiveSheetIndex() == 0 && rowIndex == 2 && columnIndex == 4) {
 					export.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 					return export;
@@ -79,7 +79,7 @@ public class SpreadsheetViewSudebi extends VerticalLayout {
 			dialog.setSpreadsheet(spreadsheet);
 			dialog.open();
 		});
-		
+
 		export.addClickListener(event -> {
 			downloadSpreadsheetFile();
 		});
@@ -89,7 +89,6 @@ public class SpreadsheetViewSudebi extends VerticalLayout {
 	private Logger getLogger() {
 		return LoggerFactory.getLogger(getClass());
 	}
-
 
 	private void downloadSpreadsheetFile() {
 		try {
