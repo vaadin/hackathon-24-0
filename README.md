@@ -1,10 +1,11 @@
 # Hackathon 24.0.0
 
-This is an hybrid project (with views in Flow and Hilla) generated in star.vaadin.com for vaadin 23.3.6 and hilla 1.3.6
+This is an hybrid project (with views in Flow and Hilla) generated in star.vaadin.com for vaadin 23.3.6 and hilla 1.3.6. 
 
 
 ### Achievements
 
+0. Since I modified the default Person entity by adding a password field, I could discover an [issue](https://github.com/vaadin/start/issues/2325) for the start project
 1. Application Migrated from [23.3 to 24.0](https://github.com/vaadin/hackathon-24-0/commit/eece96da4154681c4003ab086acd85c68a846dc2) by following [upgrade guide](https://vaadin.com/docs/next/upgrading). No issues found.
 2. Make master-detail java view [responsive](https://github.com/vaadin/hackathon-24-0/commit/1522497fc986b843f89385cadb2f5bbb89dc2ce9). It tries to fix [issue](https://github.com/vaadin/start/issues/856). Here the screenshots:
 <div>
