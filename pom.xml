@@ -117,6 +117,12 @@
             <version>1.51.0</version>
             <scope>test</scope>
         </dependency>
+        <!-- for serialization of OffsetDateTime-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.18.3</version>
+        </dependency>
     </dependencies>
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
