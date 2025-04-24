@@ -25,8 +25,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class GitHubTagService {
 
-    @Value("${github.personal.token}")
-    private String githubToken;
     @Value("${tagservice.tagcache.enabled}")
     private boolean tagCacheEnabled;
     @Value("${tagservice.tagcache.maxAge}")
@@ -75,6 +73,7 @@ public class GitHubTagService {
 
         int pageSize = 100;
         String cursor = null;
+        String githubToken = System.getProperty("GITHUB_TOKEN");
 
         List<VersionDetails> result = new ArrayList<>();
 
