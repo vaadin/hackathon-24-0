@@ -16,8 +16,8 @@ public class GitService {
     class VersionComparator implements Comparator<String> {
         @Override
         public int compare(String version1, String version2) {
-            String[] parts1 = version1.substring(1).split("[\\.-]"); // Remove 'v' and split on '.'
-            String[] parts2 = version2.substring(1).split("[\\.-]");
+            String[] parts1 = version1.split("[\\.-]"); //split on '.'
+            String[] parts2 = version2.split("[\\.-]");
 
             int length = Math.min(parts1.length, parts2.length);
             for (int i = 0; i < length; i++) {
