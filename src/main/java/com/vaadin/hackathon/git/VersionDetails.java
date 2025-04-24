@@ -14,6 +14,9 @@ public class VersionDetails {
         this.creator = creator;
     }
 
+    //empty constructor for deserialization
+    public VersionDetails(){}
+
     public String getVersion() {
         return this.version;
     }
