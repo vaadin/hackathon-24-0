@@ -29,6 +29,11 @@ public class GitHubTagService {
     private boolean tagCacheEnabled;
     @Value("${tagservice.tagcache.maxAge}")
     private long tagCacheDuration;
+    @Value("${tagservice.tagcache.folder}")
+    private String tagCacheFolder;
+    @Value("${github.personal.token}")
+    private String githubToken;
+    
     
     private Instant lastCachedTime = Instant.now();
 
@@ -63,7 +68,7 @@ public class GitHubTagService {
      */
     public List<VersionDetails> fetchAllTags(String repoOwner, String repoName) throws IOException, InterruptedException {
 
-        if( lastCachedTime.plusSeconds(tagCacheDuration).isAfter(Instant.now()) ){
+        if(tagCacheEnabled && lastCachedTime.plusSeconds(tagCacheDuration).isAfter(Instant.now()) ){
             //try fetching data from cache
             var cachedData = fetchTagsFromCache(repoOwner, repoName);
             if(cachedData!=null){
@@ -73,7 +78,6 @@ public class GitHubTagService {
 
         int pageSize = 100;
         String cursor = null;
-        String githubToken = System.getProperty("GITHUB_TOKEN");
 
         List<VersionDetails> result = new ArrayList<>();
 
@@ -100,7 +104,6 @@ public class GitHubTagService {
                     if (createdBy == null) createdBy = author.path("name").asText();
                     createdAt = target.path("committedDate").asText();
                 }
-                // System.out.printf("Tag: %s, Created by: %s, At: %s%n", tagName, createdBy, createdAt);
                 result.add(new VersionDetails(tagName, OffsetDateTime.parse(createdAt) ,createdBy));
             }
 
@@ -110,7 +113,9 @@ public class GitHubTagService {
             cursor = hasNext ? pageInfo.path("endCursor").asText() : null;
         } while (cursor != null);
 
-        saveToCache(repoOwner, repoName, result);
+        if(tagCacheEnabled){
+            saveToCache(repoOwner, repoName, result);
+        }
         return result;
     }
 
@@ -157,9 +162,9 @@ public class GitHubTagService {
         return root.path("data");
     }
 
-    private static List<VersionDetails> fetchTagsFromCache(String repoOwner, String repoName) {
+    private List<VersionDetails> fetchTagsFromCache(String repoOwner, String repoName) {
         try {
-            File cacheFile = new File(System.getProperty("java.io.tmpdir"), 
+            File cacheFile = new File(tagCacheFolder, 
                 "github-tags-" + repoOwner + "_" + repoName + ".json");
             
             if (!cacheFile.exists()) {
@@ -179,7 +184,7 @@ public class GitHubTagService {
 
 private void saveToCache(String repoOwner, String repoName, List<VersionDetails> details) {
     try {
-        File cacheFile = new File(System.getProperty("java.io.tmpdir"), 
+        File cacheFile = new File(tagCacheFolder, 
             "github-tags-" + repoOwner + "_" + repoName + ".json");
         
         ObjectMapper mapper = new ObjectMapper();
